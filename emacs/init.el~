@@ -1,0 +1,246 @@
+; TODO:
+; treesitter context
+; disable warnings for lsps that dont exist
+(blink-cursor-mode -1)
+(set-frame-font "Fira Code Retina 12")
+; bars
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+; bottom bar
+(column-number-mode 1)
+(size-indication-mode 1)
+(display-battery-mode 1)
+(display-time-mode 1)
+
+(setq display-time-format "%H:%M - %d, %M %Y"
+      inhibit-startup-screen t
+      display-line-numbers 'relative)
+;(global-display-line-numbers-mode t)
+
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+
+(defun reloadinit ()
+  "reloads the init file"
+  (interactive)
+  (load-file "~/.emacs.d/init.el")
+)
+
+(require 'package)
+
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+
+(unless package-archive-contents (package-refresh-contents))
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(highlight-indent-guides-auto-enabled nil)
+ '(package-selected-packages
+   '(catppuccin-theme corfu dap-mode dashboard embrace evil gruvbox-theme
+		      highlight-indent-guides indent-guide ligature
+		      lsp-mode lsp-ui projectile rainbow-delimiters
+		      rainbow-mode symbols-outline tree-sitter
+		      tree-sitter-langs vterm yasnippet
+		      yasnippet-snippets)))
+
+;; i dont really need to do any editing here. install package if it doesnt exist (ChatGPT)
+(dolist (pkg package-selected-packages) (unless (package-installed-p pkg) (package-install pkg)))
+(eval-when-compile (require 'use-package))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+; motion
+(use-package evil
+  :ensure t
+  :bind
+    ("C-c v" . evil-mode)
+)
+(use-package avy
+  :ensure t
+  :bind
+    ("C-ä c" . avy-goto-char)
+    ("C-ä w" . avy-goto-word-1)
+    ("C-ä l" . avy-goto-line)
+)
+(use-package embrace
+  :ensure t
+  :bind
+    ("C-c e" . embrace-commander)
+)
+
+; style
+(use-package gruvbox-theme
+  :ensure t
+  :config
+    (load-theme 'gruvbox-dark-soft :noconfirm)
+)
+(use-package ligature
+  :config
+    (global-ligature-mode t)
+)
+(use-package dashboard
+  :ensure t
+  :config
+    (dashboard-setup-startup-hook)
+)
+(use-package projectile
+  :ensure t
+  :config (projectile-mode 1))
+
+; highlighting
+(use-package tree-sitter
+  :ensure t
+  :config
+    (use-package tree-sitter-langs :ensure t)
+    (dolist (lang '(c haskell)) (tree-sitter-require lang))
+  :hook
+    (prog-mode . tree-sitter-mode)
+    (prog-mode . tree-sitter-hl-mode)
+)
+(use-package rainbow-mode
+  :ensure t
+  :hook (prog-mode . rainbow-mode)
+)
+(use-package rainbow-delimiters
+  :ensure t
+  :hook (prog-mode . rainbow-delimiters-mode)
+)
+(use-package highlight-indent-guides
+  :ensure t
+  :hook (prog-mode . highlight-indent-guides-mode)
+  :config
+    (set-face-foreground 'highlight-indent-guides-character-face "lightblue")
+  :custom
+    (highlight-indent-guides-method 'character)  ;; 'character, 'column, 'bitmap, 'fill
+)
+(use-package symbols-outline
+  :ensure t
+  :bind ("C-c i" . symbols-outline-show)
+  :init
+    (add-hook 'lsp-mode-hook
+      (lambda ()
+        (setq-local symbols-outline-fetch-fn #'symbols-outline-lsp-fetch)))
+  :config
+    (symbols-outline-follow-mode)
+  :custom
+    (symbols-outline-window-position 'right)
+)
+
+; lsp and completion
+(use-package lsp-mode
+  :ensure t
+  :init
+    (setq lsp-keymap-prefix "C-c l"
+          lsp-log-io t          ;; enable logging for debugging
+          lsp-enable-snippet t) ;; optional keymap prefix
+  :hook
+    ; ('prog-mode #'lsp-deferred)
+    (c-mode lsp)
+    (haskell-mode lsp)
+  :config
+    (use-package lsp-ui
+      :ensure t
+      :after lsp-mode
+      :hook (lsp-mode . lsp-ui-mode)
+      :config
+        (setq lsp-ui-sideline-enable t
+              lsp-ui-sideline-show-hover t
+              lsp-ui-sideline-show-diagnostics t
+              lsp-ui-sideline-show-code-actions t
+              lsp-ui-sideline-update-mode 'line
+              lsp-ui-sideline-delay 0.5
+              lsp-ui-sideline-diagnostic-max-lines 3
+              lsp-ui-doc-enable t
+              lsp-ui-doc-show-with-cursor t
+              lsp-ui-doc-show-with-mouse t)
+    )
+    (use-package dap-mode
+      :ensure t
+      :after lsp-mode
+      :config
+        (dap-auto-configure-mode)
+	(use-package dap-ui
+	  :ensure nil
+	  :after dap-mode
+	  :config
+	    (dap-ui-mode 1)
+	    (dap-tooltip-mode 1)
+	    (tooltip-mode 1))
+    )
+)
+(use-package corfu
+  :ensure t
+  :init
+    (global-corfu-mode)
+  :custom
+    (corfu-auto t)
+    (corfu-auto-prefix 1)
+    (corfu-auto-delay 0.0)
+    (corfu-quit-no-match 'separator)
+    (corfu-preview-current nil)
+    (corfu-preselect-first t)
+)
+(use-package yasnippet
+  :ensure t
+  :config
+    (yas-global-mode 1)
+    (use-package yasnippet-snippets :ensure t)
+)
+
+(global-set-key (kbd "C-c r") 'reloadinit)
+(global-set-key (kbd "M-n") (kbd "C-<down>"))
+(global-set-key (kbd "M-p") (kbd "C-<up>"))
+(global-set-key (kbd "C-c C-t") 'vterm)
+
+(define-prefix-command 'tab-mappings)
+  (global-set-key (kbd "C-c t") 'tab-mappings)
+  (define-key tab-mappings (kbd "s")
+              (lambda () (interactive)
+		         (if global-tab-line-mode
+                             (global-tab-line-mode -1)
+                             (global-tab-line-mode 1))))
+  (define-key tab-mappings (kbd "c")
+              (lambda () (interactive)
+                         (let ((buf (generate-new-buffer "untitled"))) 
+                              (switch-to-buffer buf))))
+  (define-key tab-mappings (kbd "n") 'tab-line-switch-to-next-tab)
+  (define-key tab-mappings (kbd "p") 'tab-line-switch-to-prev-tab)
+
+(define-prefix-command 'yank-mappings)
+  (global-set-key (kbd "C-c C-y") 'yank-mappings)
+  (define-key yank-mappings (kbd "j") (kbd "C-a C-<SPC> C-n M-w C-y"))
+  (define-key yank-mappings (kbd "k") (kbd "C-e C-<SPC> C-p M-w C-y"))
+
+(setq tab-line-tabs-function
+      (lambda ()
+	(delete-dups ;(buffer-list)
+	 (seq-filter
+	  (lambda (buf)
+	    (let ((name (buffer-name buf)))
+	      (not (string-prefix-p "*" name))))
+	  (buffer-list))))
+)
+
+;;DONE
+; (defun my-tab ()
+;   "Expand snippet if available, otherwise indent."
+;   (interactive)
+;   (if (and (bound-and-true-p yas-minor-mode)
+;            (yas-expand))
+;       t
+;     (indent-for-tab-command)))
+;
+;; Bind TAB in programming buffers
+; (add-hook 'prog-mode-hook
+;           (lambda ()
+;             (local-set-key (kbd "TAB") #'my-tab)))
+
+(provide 'init)
