@@ -50,7 +50,7 @@ tab_title_template " ┇ {fmt.fg.tab}{index}:{num_windows} {tab.active_exe} �
 tab_bar_style		powerline
 tab_powerline_style	angled
 
-shell /usr/bin/zsh
+#shell /usr/bin/zsh
 
 background_image ${background}
 background_image_layout cscaled
@@ -69,17 +69,6 @@ background_image ${background}
     '';
 
   in {
-    apps.${system}.default = {
-      type = "app";
-      program = toString (pkgs.writeShellScript "generate-kitty-conf" ''
-        set -eu
-        out="kitty.conf"
-        cat >"$out" <<EOF ${configuration}
-        EOF
-      '');
-    };
-
-    # also buildable as a package with nix build
-    packages.${system}.default = pkgs.writeText "kitty.conf" ''${configuration}'';
+    packages.${system}.default = pkgs.writeText "kitty.conf" configuration
   };
 }
