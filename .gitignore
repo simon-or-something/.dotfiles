@@ -1,0 +1,12 @@
+*
+!emacs/
+!emacs/**
+
+!kitty/
+!kitty/**
+
+!LICENSE
+!README.md
+
+!.gitignore
+!.git/**
