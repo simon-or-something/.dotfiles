@@ -1,12 +1,7 @@
 *
-!emacs/
-!emacs/**
-
-!kitty/
-!kitty/**
+!**/flake.nix
 
 !LICENSE
 !README.md
 
-!.gitignore
-!.git/**
+!.git*
