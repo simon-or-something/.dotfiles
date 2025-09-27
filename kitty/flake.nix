@@ -69,6 +69,6 @@ background_image ${background}
     '';
 
   in {
-    packages.${system}.default = pkgs.writeText "kitty.conf" configuration
+    packages.${system}.default = pkgs.writeText "kitty.conf" configuration;
   };
 }
