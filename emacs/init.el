@@ -11,6 +11,8 @@
 (size-indication-mode 1)
 (display-battery-mode 1)
 (display-time-mode 1)
+(global-font-lock-mode t)
+; (set-frame-parameter (selected-frame) 'alpha 85)
 
 (setq display-time-format "%H:%M - %d, %M %Y"
       inhibit-startup-screen t
@@ -22,7 +24,7 @@
 (defun reloadinit ()
   "reloads the init file"
   (interactive)
-  (load-file "~/.emacs.d/init.el")
+  (load-file "~/.config/emacs/init.el")
 )
 
 (require 'package)
@@ -37,14 +39,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("51fa6edfd6c8a4defc2681e4c438caf24908854c12ea12a1fbfd4d055a9647a3"
+     default))
  '(highlight-indent-guides-auto-enabled nil)
  '(package-selected-packages
    '(corfu dap-mode dashboard embrace evil gruvbox-theme
-	 highlight-indent-guides indent-guide ligature
-	 lsp-mode lsp-ui projectile rainbow-delimiters
-	 rainbow-mode symbols-outline tree-sitter
-	 tree-sitter-langs vterm yasnippet
-	 yasnippet-snippets)))
+     highlight-indent-guides indent-guide ligature lsp-mode
+     lsp-ui multiple-cursors projectile rainbow-delimiters
+     rainbow-mode symbols-outline tree-sitter tree-sitter-langs
+     vterm wallpaper yasnippet yasnippet-snippets)))
 
 ;; i dont really need to do any editing here. install package if it doesnt exist (ChatGPT)
 (dolist (pkg package-selected-packages) (unless (package-installed-p pkg) (package-install pkg)))
@@ -75,6 +79,12 @@
   :bind
     ("C-c e" . embrace-commander)
 )
+(use-package multiple-cursors
+   :ensure t
+   :bind
+    ("C-<down>" . mc/mark-next-lines)
+    ("C-<up>" . mc/mark-prev-lines)
+)
 
 ; style
 (use-package gruvbox-theme
@@ -90,17 +100,20 @@
   :ensure t
   :config
     (dashboard-setup-startup-hook)
+    (setq dashboard-startup-banner "~/Pictures/emacs-logo.png")
 )
 (use-package projectile
   :ensure t
-  :config (projectile-mode 1))
+  :config
+    (projectile-mode 1)
+)
 
 ; highlighting
 (use-package tree-sitter
   :ensure t
   :config
     (use-package tree-sitter-langs :ensure t)
-    (dolist (lang '(c haskell)) (tree-sitter-require lang))
+    (dolist (lang '(c haskell nix)) (tree-sitter-require lang))
   :hook
     (prog-mode . tree-sitter-mode)
     (prog-mode . tree-sitter-hl-mode)
@@ -167,13 +180,13 @@
       :after lsp-mode
       :config
         (dap-auto-configure-mode)
-	(use-package dap-ui
-	  :ensure nil
-	  :after dap-mode
-	  :config
-	    (dap-ui-mode 1)
-	    (dap-tooltip-mode 1)
-	    (tooltip-mode 1))
+    (use-package dap-ui
+    :ensure nil
+    :after dap-mode
+    :config
+      (dap-ui-mode 1)
+      (dap-tooltip-mode 1)
+      (tooltip-mode 1))
     )
 )
 (use-package corfu
@@ -204,12 +217,12 @@
   (global-set-key (kbd "C-c t") 'tab-mappings)
   (define-key tab-mappings (kbd "s")
               (lambda () (interactive)
-		         (if global-tab-line-mode
+               (if global-tab-line-mode
                              (global-tab-line-mode -1)
                              (global-tab-line-mode 1))))
   (define-key tab-mappings (kbd "c")
               (lambda () (interactive)
-                         (let ((buf (generate-new-buffer "untitled"))) 
+                         (let ((buf (generate-new-buffer "untitled")))
                               (switch-to-buffer buf))))
   (define-key tab-mappings (kbd "n") 'tab-line-switch-to-next-tab)
   (define-key tab-mappings (kbd "p") 'tab-line-switch-to-prev-tab)
@@ -221,12 +234,12 @@
 
 (setq tab-line-tabs-function
       (lambda ()
-	(delete-dups ;(buffer-list)
-	 (seq-filter
-	  (lambda (buf)
-	    (let ((name (buffer-name buf)))
-	      (not (string-prefix-p "*" name))))
-	  (buffer-list))))
+  (delete-dups ;(buffer-list)
+   (seq-filter
+    (lambda (buf)
+      (let ((name (buffer-name buf)))
+        (not (string-prefix-p "*" name))))
+    (buffer-list))))
 )
 
 ;;DONE

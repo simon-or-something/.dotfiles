@@ -17,7 +17,7 @@
 
     font = pkgs.fetchurl {
       url = "https://codeberg.org/juarez-gonza/dotconfig/src/commit/8b811a305389ceab8bd0d03052e0c3e7c62bfe1e/gui/fonts/LigaComicMono.ttf";
-      sha256 = "sha256-HVWy+71cpI6vXUKywOTgNIxi3yrgFKeYYLH9X2rZ7is=";
+      sha256 = "sha256-L3wNEKAI7GeVM1cZObaKoXDZiVChfjYXIp9P3FGdf3E=";
     };
 
     theme = pkgs.fetchFromGitHub {
@@ -37,6 +37,7 @@ include ${theme}/gruvbox_dark_soft.conf
 # You just dont get it
 font_family	${font}
 font_size	14
+symbol_map U+1FBF0-U+1FBF9 Unifont Upper
 
 # font_family		    FiraCode-Retina
 # {bold,italic,bold_italic}_font FiraCode-{Bold,Light,SemiBold}
@@ -50,7 +51,7 @@ tab_title_template " ┇ {fmt.fg.tab}{index}:{num_windows} {tab.active_exe} �
 tab_bar_style		powerline
 tab_powerline_style	angled
 
-#shell /usr/bin/zsh
+shell /usr/bin/zsh
 
 background_image ${background}
 background_image_layout cscaled
