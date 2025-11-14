@@ -44,11 +44,12 @@
      default))
  '(highlight-indent-guides-auto-enabled nil)
  '(package-selected-packages
-   '(corfu dap-mode dashboard embrace evil gruvbox-theme
-     highlight-indent-guides indent-guide ligature lsp-mode
-     lsp-ui multiple-cursors projectile rainbow-delimiters
-     rainbow-mode symbols-outline tree-sitter tree-sitter-langs
-     vterm wallpaper yasnippet yasnippet-snippets)))
+   '(corfu dap-mode dashboard elcord embrace evil gruvbox-theme
+	   highlight-indent-guides indent-guide ligature lsp-java
+	   lsp-mode lsp-ui multiple-cursors projectile 
+	   rainbow-delimiters rainbow-mode symbols-outline tree-sitter
+	   tree-sitter-langs vterm wallpaper yasnippet
+	   yasnippet-snippets)))
 
 ;; i dont really need to do any editing here. install package if it doesnt exist (ChatGPT)
 (dolist (pkg package-selected-packages) (unless (package-installed-p pkg) (package-install pkg)))
@@ -113,7 +114,7 @@
   :ensure t
   :config
     (use-package tree-sitter-langs :ensure t)
-    (dolist (lang '(c haskell nix)) (tree-sitter-require lang))
+    (dolist (lang '(c haskell nix java)) (tree-sitter-require lang))
   :hook
     (prog-mode . tree-sitter-mode)
     (prog-mode . tree-sitter-hl-mode)
@@ -147,6 +148,21 @@
     (symbols-outline-window-position 'right)
 )
 
+; languages and lsps
+(use-package lsp-java
+  :config
+    (add-hook 'java-mode-hook 'lsp)
+  :after lsp-mode
+)
+(use-package markdown-mode
+  :ensure t
+  :init
+    (setq markdown-command "multimarkdown")
+  :bind
+   (:map markdown-mode-map
+      ("C-c C-e" . markdown-do))
+)
+ 
 ; lsp and completion
 (use-package lsp-mode
   :ensure t
@@ -157,6 +173,7 @@
   :hook
     ; ('prog-mode #'lsp-deferred)
     (c-mode lsp)
+    (java-mode lsp)
     (haskell-mode lsp)
   :config
     (use-package lsp-ui
@@ -208,10 +225,17 @@
     (use-package yasnippet-snippets :ensure t)
 )
 
+; styling and applications
+;(require 'elcord)
+;(elcord-mode)
+
 (global-set-key (kbd "C-c r") 'reloadinit)
 (global-set-key (kbd "M-n") (kbd "C-<down>"))
 (global-set-key (kbd "M-p") (kbd "C-<up>"))
 (global-set-key (kbd "C-c C-t") 'vterm)
+
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
 
 (define-prefix-command 'tab-mappings)
   (global-set-key (kbd "C-c t") 'tab-mappings)
@@ -240,7 +264,9 @@
       (let ((name (buffer-name buf)))
         (not (string-prefix-p "*" name))))
     (buffer-list))))
-)
+      )
+
+(setq shell-file-name "/usr/bin/zsh")
 
 ;;DONE
 ; (defun my-tab ()
