@@ -17,7 +17,7 @@
 
     font = pkgs.fetchurl {
       url = "https://codeberg.org/juarez-gonza/dotconfig/src/commit/8b811a305389ceab8bd0d03052e0c3e7c62bfe1e/gui/fonts/LigaComicMono.ttf";
-      sha256 = "sha256-L3wNEKAI7GeVM1cZObaKoXDZiVChfjYXIp9P3FGdf3E=";
+      sha256 = "sha256-tGA+yiOADZ70ZqU1UsJk2wIX5DvFMaaoh1+VtlNysRU=";
     };
 
     theme = pkgs.fetchFromGitHub {
