@@ -101,20 +101,17 @@
                dictionary diff-hl docker dockerfile-mode editorconfig
                elisp-autofmt elixir-ts-mode embark embark-consult embrace
                flycheck graphviz-dot-mode gruvbox-theme heex-ts-mode
-               highlight-indent-guides hl-todo idlwave iedit less-css-mode
-               ligature lsp-java lsp-mode lsp-pyright lsp-ui magit marginalia
-               move-text multiple-cursors nerd-icons-corfu orderless org
-               org-mind-map org-preview-html org-roam org-transclusion pdf-tools
-               preview-auto projectile python-docstring racket-mode
-               rainbow-delimiters rainbow-mode ripgrep smartparens
-               string-inflection track-changes transient verilog-mode vertico
-               vterm wallpaper which-key window-tool-bar yasnippet
-               yasnippet-snippets))
- '(safe-local-variable-values
-   '((eval let ((root (locate-dominating-file default-directory ".dir-locals.el")))
-           (setq-local org-roam-directory (expand-file-name "notes/" root))
-           (setq-local org-roam-db-location
-                       (expand-file-name "org-roam.db" root))))))
+               highlight-indent-guides hl-todo idlwave iedit kdl-mode
+               less-css-mode ligature lsp-java lsp-mode lsp-pyright lsp-ui
+               lua-mode magit marginalia matlab-mode move-text multiple-cursors
+               nerd-icons-corfu orderless org org-mind-map org-preview-html
+               org-roam org-transclusion pdf-tools preview-auto projectile
+               python-docstring racket-mode rainbow-delimiters rainbow-mode
+               rc-mode ripgrep smartparens string-inflection symbols-outline
+               track-changes transient verilog-mode vertico vterm wallpaper
+               which-key window-tool-bar yaml-mode yasnippet yasnippet-snippets))
+ '(safe-local-variable-directories
+   '("/home/simon-or-something/Documents/Org/uni/compsci/coto/notes/")))
 ;; org-mode: https://abode.karthinks.com/org-latex-preview/ -> https://code.tecosaur.net/tec/org-mode
 ;; from https://abode.karthinks.com/org-latex-preview/
 
@@ -290,6 +287,7 @@
                              ("DEBUG" . "#d3869b")
                              ("GOTCHA" . "#d65d0e")
                              ("STUB" . "#076678")
+                             ("MARK" . "#d79921")
                              ))
     :config
     (global-hl-todo-mode)
@@ -440,6 +438,12 @@
       (org-src-tab-acts-natively t)
       ;;(org-edit-src-content-indentation 0)
       )
+    (use-package org-roam
+      :after org
+      :init
+      (setq org-roam-directory "~/.config/emacs/") ;; (file-truename (locate-user-emacs-file "org/"))
+      (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
+      )
     (use-package ox-typst
       :after org)
     )
@@ -462,7 +466,11 @@
       :custom
       (vterm-max-scrollback 1000)
       :init
-      (setopt shell-file-name "/usr/bin/zsh")
+      (setq vterm-shell (cond
+                         ((string-equal system-name "debiauan.lan")   "/bin/bash")
+                         ((string-equal system-name "genone")   "/bin/bash")
+                         ((string-equal system-name "debiauan") "/bin/zsh")
+                         (t "/bin/sh")))
       ;;(setopt vterm-keymap-exceptions nil)
       ;; or '("C-c" "C-x" "C-u" "C-g" "C-y" "M-x") instead
       )
