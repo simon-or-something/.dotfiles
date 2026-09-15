@@ -21,6 +21,13 @@
                 ,name
                 (float-time (time-subtract (current-time) start-time))))
     )
+  (defun custom/org-scratch ()
+    "creates a new org-mode scratch buffer"
+    (interactive)
+    (switch-to-buffer (generate-new-buffer "*Org: scratch*"))
+    (org-mode)
+    (message "org mode buffer created")
+    )
   )
 
                                         ; basic settings
@@ -75,8 +82,14 @@
         '((c-mode . c-ts-mode)
           (c++-mode . c++-ts-mode)
           (typescript-mode . typescript-ts-mode)
+          (go-mode . go-ts-mode)
           )
         )
+  (setq go-ts-mode-indent-offset 4)
+  (setq auto-mode-alist
+        (append
+         '(("\*Org: scratch\*" . org-mode))
+         auto-mode-alist))
   )
 
                                         ; packages
@@ -100,8 +113,8 @@
    '(anki-mode avy-embark-collect cape consult corfu crdt dap-mode dash-functional
                dictionary diff-hl docker dockerfile-mode editorconfig
                elisp-autofmt elixir-ts-mode embark embark-consult embrace
-               flycheck graphviz-dot-mode gruvbox-theme heex-ts-mode
-               highlight-indent-guides hl-todo idlwave iedit kdl-mode
+               flycheck go-mode graphviz-dot-mode gruvbox-theme heex-ts-mode
+               highlight-indent-guides hl-todo htmlize idlwave iedit kdl-mode
                less-css-mode ligature lsp-java lsp-mode lsp-pyright lsp-ui
                lua-mode magit marginalia matlab-mode move-text multiple-cursors
                nerd-icons-corfu orderless org org-mind-map org-preview-html
@@ -111,7 +124,10 @@
                track-changes transient verilog-mode vertico vterm wallpaper
                which-key window-tool-bar yaml-mode yasnippet yasnippet-snippets))
  '(safe-local-variable-directories
-   '("/home/simon-or-something/Documents/Org/uni/compsci/coto/notes/")))
+   '("/home/simon-or-something/Documents/Org/uni/compsci/coto/notes/"))
+ '(safe-local-variable-values
+   '((eval let ((root (locate-dominating-file default-directory ".dir-locals.el")))
+           (setq-local org-roam-directory (expand-file-name "notes/" root))))))
 ;; org-mode: https://abode.karthinks.com/org-latex-preview/ -> https://code.tecosaur.net/tec/org-mode
 ;; from https://abode.karthinks.com/org-latex-preview/
 
@@ -266,11 +282,13 @@
               (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
               (typst      "https://github.com/uben0/tree-sitter-typst")
               (json       "https://github.com/tree-sitter/tree-sitter-json.git")
-              (typescript "https://github.com/tree-sitter/tree-sitter-typescript")
+              (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+              (go         "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
+              (gomod  "https://github.com/camdencheek/tree-sitter-go-mod" "v1.0.2")
               )
             )
 
-    (use-package rainbow-mode :hook (prog-mode . rainbow-mode)) ;; colours
+    (use-package rainbow-mode :hook ((prog-mode org-mode) . rainbow-mode)) ;; colours
     (use-package rainbow-delimiters :hook (prog-mode . rainbow-delimiters-mode)) ;; brackets
     (use-package highlight-indent-guides
       :hook
@@ -307,7 +325,7 @@
 (timeload "lsp setup and completion"
     (use-package lsp-mode
       :hook
-      ((c-ts-mode c++-ts-mode java-mode haskell-mode python-mode python-ts-mode typescript-ts-mode) . lsp-deferred)
+      ((c-ts-mode c++-ts-mode java-mode haskell-mode python-mode python-ts-mode typescript-ts-mode go-ts-mode) . lsp-deferred)
       :commands
       (lsp lsp-deferred)
       :custom
@@ -550,7 +568,7 @@
   )
 
 (timeload "hooks"
-    (dolist (hook '(prog-mode-hook conf-mode-hook))
+    (dolist (hook '(prog-mode-hook conf-mode-hook org-mode))
       (add-hook hook #'display-line-numbers-mode))
     (add-hook 'emacs-startup-hook
               (lambda ()
