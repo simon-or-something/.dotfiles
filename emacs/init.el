@@ -1,7 +1,7 @@
 ;;; init.el:  -*- lexical-binding: t; -*-
 ;; TODO:
 ;; treesitter context
-;; disable warnings for lsps that dont exist
+;; disable warnings for lsps that don't exist
 
                                         ; functions
 (progn
@@ -36,23 +36,35 @@
     (blink-cursor-mode -1)
     (show-paren-mode 1)
     (setopt show-paren-delay 0)
-    ;; font
-    (add-to-list 'default-frame-alist '(font . "Fira Code Retina-12"))
-  (set-face-attribute 'default nil :font "Fira Code Retina-12")
+    ;; font (./early-init.el)
+    ;; (add-to-list 'default-frame-alist '(font . "Fira Code Retina-12"))
+    ;; (set-face-attribute 'default nil :font "Fira Code Retina-12")
   (global-font-lock-mode t)
-  ;; bars
-  (menu-bar-mode -1) ;; i like it, if i ever forget a command
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+  ;; bars (present in ./early-init.el so it isn't even rendered)
+  ;; (menu-bar-mode -1) ;; i like it, if i ever forget a command
+  ;; (tool-bar-mode -1)
+  ;; (scroll-bar-mode -1)
   (tooltip-mode -1)
   ;; bottom bar
   (column-number-mode 1)
   (size-indication-mode 1)
+  (setopt display-time-format "%H:%M - %d, %m %Y")
+  (display-time-mode 1)
+
+  ;; this runs it only if Emacs is idle, but i don't really care
+  ;;(run-with-idle-timer
+  ;; 1 nil
+  ;; (lambda ()
+  ;;   (display-time-mode 1)
+  ;;   (require 'battery)
+  ;;   (when (and battery-status-function
+  ;;              (not (string-match-p
+  ;;                    "N/A" (battery-format "%B" (funcall battery-status-function)))))
+  ;;     (display-battery-mode 1))))
   (when (and (fboundp 'battery)
              (battery))
     (display-battery-mode 1))
-  (display-time-mode 1)
-  (setopt display-time-format "%H:%M - %d, %m %Y")
+
   ;; side bar
   (setopt display-line-numbers-type 'relative)
   ;; indentation
@@ -123,8 +135,7 @@
                rc-mode ripgrep smartparens string-inflection symbols-outline
                track-changes transient verilog-mode vertico vterm wallpaper
                which-key window-tool-bar yaml-mode yasnippet yasnippet-snippets))
- '(safe-local-variable-directories
-   '("/home/simon-or-something/Documents/Org/uni/compsci/coto/notes/"))
+ ;; that ship has sailed '(safe-local-variable-directories '(""))
  '(safe-local-variable-values
    '((eval let ((root (locate-dominating-file default-directory ".dir-locals.el")))
            (setq-local org-roam-directory (expand-file-name "notes/" root))))))
@@ -139,9 +150,10 @@
  )
 
 (require 'use-package)
-(require 'seq)
-(require 'project)
+;;(require 'seq)
+;;(require 'project)
 (setopt use-package-always-ensure t)
+;; (setq use-package-compute-statistics t) ;; uncomment, restart, M-x use-package-report to see loadtimes
 
 ;; vertico (evil) consult embark magit projectile cape lsp-ui dap-mode lsp-dart lsp-flutter editorconfig corfu
 ;; yasnippets diff-hl hl-todo vertico-directory projectile vterm rainbow-delimiters multiple-cursors iedit smartparens
@@ -153,7 +165,7 @@
 (timeload "motion"
     ;; for clean reinstalls turn this on, let emacs do its thing, then turn this off
     ;;(when nil
-    ;;(use-package evil :bind ("C-c v" . evil-mode)) ;; breaks my heart to disable this but i dont need it
+    ;;(use-package evil :bind ("C-c v" . evil-mode)) ;; breaks my heart to disable this but i don't need it
     (use-package avy
       :bind
       ("C-ä c" . avy-goto-char)
@@ -249,9 +261,9 @@
       (completion-pcm-leading-wildcard t)
       ) ;; Emacs 31: partial-completion behaves like substring
 
-  (use-package magit)
+  (use-package magit :defer t)
   (use-package diff-hl
-    :after magit
+    ;;:after magit;; then it never turns on until magit is loaded
     :hook
     ((prog-mode text-mode) . diff-hl-mode)
     (dired-mode . diff-hl-dired-mode)
@@ -311,8 +323,9 @@
     (global-hl-todo-mode)
     )
   (use-package hideshow
+    :ensure nil ;; don't refresh package contents and just load it (it ships with it)
     :hook
-    (prog-mode-hook . hs-minor-mode)
+    (prog-mode . hs-minor-mode)
     :bind
     ("C-c @ h" . hs-hide-block)
     ("C-c @ s" . hs-show-block)
@@ -403,12 +416,16 @@
   (use-package yasnippet-snippets :after yasnippet)
 
   (use-package nerd-icons-corfu
-    :after corfu
+    :defer t
+    ;;:after corfu
     :config
-    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+    ;;(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+    (with-eval-after-load 'corfu
+      (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
     )
 
   (use-package flyspell
+    :ensure nil
     :hook
     ((text-mode org-mode)  . flyspell-mode)
     (prog-mode . flyspell-prog-mode)
@@ -441,6 +458,7 @@
 
 (timeload "org, org mode, etc"
     (use-package org
+      :defer t
       ;;:load-path "~/.config/emacs/elpa/org-mode/lisp/"
       :config
       (org-babel-do-load-languages
@@ -457,22 +475,30 @@
       ;;(org-edit-src-content-indentation 0)
       )
     (use-package org-roam
-      :after org
+      :defer t
+      ;;:after org
+      :commands (org-roam-node-find
+                 org-roam-node-insert
+                 org-roam-buffer-toggle
+                 org-roam-capture
+                 org-roam-db-sync)
       :init
       (setq org-roam-directory "~/.config/emacs/") ;; (file-truename (locate-user-emacs-file "org/"))
       (setq org-roam-db-location (expand-file-name "org-roam.db" org-roam-directory))
       )
     (use-package ox-typst
-      :after org)
+      :after ox)
     )
 
                                         ; styling and applications
 (timeload "styling and applications / ipc"
-    (use-package saveplace :config (save-place-mode 1))
-    (use-package savehist :config (savehist-mode 1))
+    (use-package saveplace :ensure nil :config (save-place-mode 1))
+    (use-package savehist :ensure nil :config (savehist-mode 1))
     (use-package recentf
+      :ensure nil
       :custom
       (recentf-max-saved-items 50)
+      ;;(recent-auto-cleanup 'never)
       :config
       (recentf-mode 1)
       )
@@ -485,9 +511,9 @@
       (vterm-max-scrollback 1000)
       :init
       (setq vterm-shell (cond
-                         ((string-equal system-name "debiauan.lan")   "/bin/bash")
-                         ((string-equal system-name "genone")   "/bin/bash")
-                         ((string-equal system-name "debiauan") "/bin/zsh")
+                         ((string-equal (system-name) "debiauan.lan")   "/bin/bash")
+                         ((string-equal (system-name) "genone")   "/bin/bash")
+                         ((string-equal (system-name) "debiauan") "/bin/zsh")
                          (t "/bin/sh")))
       ;;(setopt vterm-keymap-exceptions nil)
       ;; or '("C-c" "C-x" "C-u" "C-g" "C-y" "M-x") instead
@@ -512,8 +538,8 @@
 
     (keymap-global-set "C-x O" #'custom/other-window-backward)
 
-  (with-eval-after-load 'project
-    (keymap-set project-prefix-map "c" #'compile))
+  (with-eval-after-load 'project  ;; so it just compiles without there being a project
+    (keymap-set project-prefix-map "c" #'compile)) ;; normally you need to be in a GH repo
   (with-eval-after-load 'pdf-view
     (define-key pdf-view-mode-map (kbd "G g") #'image-bob)
     (define-key pdf-view-mode-map (kbd "G G")   #'image-eob))
@@ -553,7 +579,7 @@
   (defvar-keymap custom/yank-mappings
     :doc "yank related mappings"
     "j" #'duplicate-line
-    "k" (lambda () ((duplicate-line) (previous-line)))
+    "k" (lambda () (interactive) (duplicate-line) (forward-line -1))
     )
   (keymap-global-set "C-c y" custom/yank-mappings)
 
@@ -568,12 +594,8 @@
   )
 
 (timeload "hooks"
-    (dolist (hook '(prog-mode-hook conf-mode-hook org-mode))
+    (dolist (hook '(prog-mode-hook conf-mode-hook org-mode-hook))
       (add-hook hook #'display-line-numbers-mode))
-    (add-hook 'emacs-startup-hook
-              (lambda ()
-                (setopt gc-cons-threshold (* 64 1024 1024)
-                        gc-cons-percentage 0.1)))
     )
 ;;)
 
