@@ -61,9 +61,7 @@
   ;;              (not (string-match-p
   ;;                    "N/A" (battery-format "%B" (funcall battery-status-function)))))
   ;;     (display-battery-mode 1))))
-  (when (and (fboundp 'battery)
-             (battery))
-    (display-battery-mode 1))
+  (display-battery-mode 1)
 
   ;; side bar
   (setopt display-line-numbers-type 'relative)
@@ -153,7 +151,7 @@
 ;;(require 'seq)
 ;;(require 'project)
 (setopt use-package-always-ensure t)
-;; (setq use-package-compute-statistics t) ;; uncomment, restart, M-x use-package-report to see loadtimes
+(setq use-package-compute-statistics t) ;; uncomment, restart, M-x use-package-report to see loadtimes
 
 ;; vertico (evil) consult embark magit projectile cape lsp-ui dap-mode lsp-dart lsp-flutter editorconfig corfu
 ;; yasnippets diff-hl hl-todo vertico-directory projectile vterm rainbow-delimiters multiple-cursors iedit smartparens
@@ -271,6 +269,7 @@
     )
   (use-package editorconfig :config (editorconfig-mode 1))
   (use-package whitespace
+    :ensure nil
     :hook
     ((prog-mode text-mode) . whitespace-mode)
     :custom
@@ -418,7 +417,7 @@
   (use-package nerd-icons-corfu
     :defer t
     ;;:after corfu
-    :config
+    :init
     ;;(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
     (with-eval-after-load 'corfu
       (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
@@ -498,7 +497,7 @@
       :ensure nil
       :custom
       (recentf-max-saved-items 50)
-      ;;(recent-auto-cleanup 'never)
+      ;;(recentf-auto-cleanup 'never)
       :config
       (recentf-mode 1)
       )
@@ -539,7 +538,7 @@
     (keymap-global-set "C-x O" #'custom/other-window-backward)
 
   (with-eval-after-load 'project  ;; so it just compiles without there being a project
-    (keymap-set project-prefix-map "c" #'compile)) ;; normally you need to be in a GH repo
+    (keymap-set project-prefix-map "c" #'compile)) ;; normally you need to be in a VCS dir
   (with-eval-after-load 'pdf-view
     (define-key pdf-view-mode-map (kbd "G g") #'image-bob)
     (define-key pdf-view-mode-map (kbd "G G")   #'image-eob))
