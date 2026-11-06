@@ -39,7 +39,7 @@
     ;; font (./early-init.el)
     ;; (add-to-list 'default-frame-alist '(font . "Fira Code Retina-12"))
     ;; (set-face-attribute 'default nil :font "Fira Code Retina-12")
-  (global-font-lock-mode t)
+    (global-font-lock-mode t)
   ;; bars (present in ./early-init.el so it isn't even rendered)
   ;; (menu-bar-mode -1) ;; i like it, if i ever forget a command
   ;; (tool-bar-mode -1)
@@ -120,20 +120,21 @@
    '("51fa6edfd6c8a4defc2681e4c438caf24908854c12ea12a1fbfd4d055a9647a3" default))
  '(highlight-indent-guides-auto-enabled nil)
  '(package-selected-packages
-   '(anki-mode avy-embark-collect cape consult corfu crdt dap-mode dash-functional
-               dictionary diff-hl docker dockerfile-mode editorconfig
-               elisp-autofmt elixir-ts-mode embark embark-consult embrace
-               flycheck go-mode graphviz-dot-mode gruvbox-theme heex-ts-mode
-               highlight-indent-guides hl-todo htmlize idlwave iedit kdl-mode
-               less-css-mode ligature lsp-java lsp-mode lsp-pyright lsp-ui
-               lua-mode magit marginalia matlab-mode move-text multiple-cursors
+   '(anki-mode avy-embark-collect bqn-mode cape consult corfu crdt dap-mode
+               dart-mode dash-functional dictionary diff-hl docker
+               dockerfile-mode editorconfig elisp-autofmt elixir-ts-mode embark
+               embark-consult embrace flutter flycheck go-mode graphviz-dot-mode
+               gruvbox-theme heex-ts-mode highlight-indent-guides hl-todo
+               htmlize idlwave iedit kdl-mode less-css-mode ligature lsp-dart
+               lsp-java lsp-metals lsp-mode lsp-pyright lsp-ui lua-mode magit
+               marginalia matlab-mode move-text multiple-cursors
                nerd-icons-corfu orderless org org-mind-map org-preview-html
                org-roam org-transclusion pdf-tools preview-auto projectile
                python-docstring racket-mode rainbow-delimiters rainbow-mode
-               rc-mode ripgrep smartparens string-inflection symbols-outline
-               track-changes transient verilog-mode vertico vterm wallpaper
-               which-key window-tool-bar yaml-mode yasnippet yasnippet-snippets))
- ;; that ship has sailed '(safe-local-variable-directories '(""))
+               rc-mode ripgrep scala-mode smartparens string-inflection
+               symbols-outline track-changes transient typescript-mode
+               verilog-mode vertico vterm wallpaper which-key window-tool-bar
+               yaml-mode yasnippet yasnippet-snippets))
  '(safe-local-variable-values
    '((eval let ((root (locate-dominating-file default-directory ".dir-locals.el")))
            (setq-local org-roam-directory (expand-file-name "notes/" root))))))
@@ -295,7 +296,8 @@
               (json       "https://github.com/tree-sitter/tree-sitter-json.git")
               (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
               (go         "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
-              (gomod  "https://github.com/camdencheek/tree-sitter-go-mod" "v1.0.2")
+              (gomod      "https://github.com/camdencheek/tree-sitter-go-mod" "v1.0.2")
+              (scala      "https://github.com/tree-sitter/tree-sitter-scala" "v0.22.1")
               )
             )
 
@@ -337,7 +339,7 @@
 (timeload "lsp setup and completion"
     (use-package lsp-mode
       :hook
-      ((c-ts-mode c++-ts-mode java-mode haskell-mode python-mode python-ts-mode typescript-ts-mode go-ts-mode) . lsp-deferred)
+      ((c-ts-mode c++-ts-mode java-mode haskell-mode python-mode python-ts-mode typescript-ts-mode go-ts-mode scala-mode) . lsp-deferred)
       :commands
       (lsp lsp-deferred)
       :custom
@@ -436,14 +438,15 @@
     (use-package lsp-java :after lsp-mode)
     (use-package lsp-pyright :after lsp-mode)
     (use-package lsp-haskell :after lsp-mode)
-    (use-package projectile
+    (use-package lsp-metals  :after scala-mode)
+  (use-package projectile
       :disabled t
       :custom
       (projectile-mode nil)
       (projectile-completion-system 'default)
       (projectile-sort-order 'recentf)
       )
-    (use-package tex
+  (use-package tex
       :ensure auctex
       :defer t
       )
